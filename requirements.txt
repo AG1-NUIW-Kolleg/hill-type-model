@@ -1,0 +1,21 @@
+Python 3.9.2
+
+Python packages:
+arviz~=0.15.1
+diffrax~=0.3.1
+functools~=
+jax~=0.4.13
+matplotlib~=3.3.4
+numpy~=1.25.1
+pandas~=2.0.3
+seaborn~=0.12.2
+scipy~=1.11.1
+xarray~=2023.6.0
+
+
+
+
+
+
+
+
