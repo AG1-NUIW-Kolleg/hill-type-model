@@ -156,6 +156,7 @@ def prior_dist_jax(theta,exp_val_prior,std_prior):
     prior_prob = (normal_prior_dist_prestret_start_length_m1_normal_jax(theta[0],exp_val_prior[0],std_prior[0])) * (normal_prior_dist_prestret_start_length_m2_normal_jax(theta[1],exp_val_prior[1],std_prior[1]))
     #prior_prob = (normal_prior_dist_start_length_m1_beta_jax(theta[0])) * (normal_prior_dist_start_length_m2_beta_jax(theta[1]))
     #prior_prob = (normal_prior_dist_m1_invgamma(theta[0])) * (normal_prior_dist_m2_invgamma(theta[1])) * (normal_prior_dist_td_invgamma(theta[2]))
+    # TODO uniform dist?
     return prior_prob 
 
 # Calculate likelihood exponent  
@@ -362,6 +363,7 @@ def NUTS_HMC(start_sample,observed_data,grad_posterior_distribution,number_itera
     
     # Choose a reasonable epsilon (Leapfrog-Step length)
     if reasonable_epsilon==True:
+        #TODO test reasonable epsilon
         epsilon_0 = FindReasonableEpsilon(start_sample,grad_posterior_distribution,model_parameters)
     else:
         epsilon_0 = np.random.uniform(epsilon_range[0],epsilon_range[1])
