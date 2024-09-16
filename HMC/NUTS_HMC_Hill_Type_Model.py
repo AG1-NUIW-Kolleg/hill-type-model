@@ -18,6 +18,8 @@ import statistics
 from scipy.signal import find_peaks
 import AD_Hill_System_HMC_Py as Hill_Solution
 
+from HMC.hmc_constants import BURN_IN
+
 start = timeit.default_timer()
 
 # Enable double precision
@@ -55,7 +57,7 @@ Tend_input = 6.0
     
 NUM_BINS = 2 #Numbers of blocks in Histogramm
 NUM_DRAWS = 5 #Number of HMC draws
-burn_in = 1 #Number of iterations for the burn-in of the HMC
+BURN_IN = 1 #Number of iterations for the burn-in of the HMC
 
 min_sample_boundary = [lslack_muscle_1_input[0],lslack_muscle_2_input[0]]
 max_sample_boundary = [lslack_muscle_1_input[1],lslack_muscle_2_input[1]]
@@ -520,8 +522,8 @@ def visualization(samples,expected_input_value,std_deviation_input_vaule,expecte
     # Plot of sample values in a row (plot the walk)
     iteration_number = np.linspace(0,NUM_DRAWS, num=NUM_DRAWS, endpoint=False)
     
-    plt.plot(iteration_number[:(burn_in+1)],samples[0][:(burn_in+1)], color='r', linestyle='-', linewidth=2)
-    plt.plot(iteration_number[burn_in:],samples[0][burn_in:], color='b', linestyle='-', linewidth=2)
+    plt.plot(iteration_number[:(BURN_IN+1)],samples[0][:(BURN_IN+1)], color='r', linestyle='-', linewidth=2)
+    plt.plot(iteration_number[BURN_IN:],samples[0][BURN_IN:], color='b', linestyle='-', linewidth=2)
 
     plt.xlabel(r'Iteration')
     plt.ylabel(r'Sample')
@@ -537,8 +539,8 @@ def visualization(samples,expected_input_value,std_deviation_input_vaule,expecte
     # Plot of sample values in a row (plot the walk)
     iteration_number = np.linspace(0,NUM_DRAWS, num=NUM_DRAWS, endpoint=False)
     
-    plt.plot(iteration_number[:(burn_in+1)],samples[1][:(burn_in+1)], color='r', linestyle='-', linewidth=2)
-    plt.plot(iteration_number[burn_in:],samples[1][burn_in:], color='b', linestyle='-', linewidth=2)
+    plt.plot(iteration_number[:(BURN_IN+1)],samples[1][:(BURN_IN+1)], color='r', linestyle='-', linewidth=2)
+    plt.plot(iteration_number[BURN_IN:],samples[1][BURN_IN:], color='b', linestyle='-', linewidth=2)
 
     plt.xlabel(r'Iteration')
     plt.ylabel(r'Sample')
@@ -649,9 +651,9 @@ def main():
     
     # Calculate expected input value and standard deviation without burn-in iterations from HMC samples 
     for i in range(len(start_sample)):        
-        expected_input_value[i] = statistics.mean(samples[lss*0+i][burn_in:]) #Expected value for input to get the observed data
-        std_deviation_input_vaule[i] = statistics.stdev(samples[lss*0+i][burn_in:]) #Standard deviation of the expected value for input to get the observed data
-        #var_input_vaule = statistics.variance(samples[burn_in:]) #Variance of the expected value for input to get the observed data
+        expected_input_value[i] = statistics.mean(samples[lss*0+i][BURN_IN:]) #Expected value for input to get the observed data
+        std_deviation_input_vaule[i] = statistics.stdev(samples[lss*0+i][BURN_IN:]) #Standard deviation of the expected value for input to get the observed data
+        #var_input_vaule = statistics.variance(samples[BURN_IN:]) #Variance of the expected value for input to get the observed data
 
     # Compute simulation output from expected value    
     calculated_expected_observed_data = observe_blackbox_simulation(expected_input_value[0:lss],model_parameters)
