@@ -1,1 +1,2 @@
 BURN_IN = 1
+FILEPATH_DATA = 'HMC/data'

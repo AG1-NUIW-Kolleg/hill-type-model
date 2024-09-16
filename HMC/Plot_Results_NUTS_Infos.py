@@ -11,13 +11,14 @@ import math
 import scipy.stats as st
 import statistics
 
+from hmc_constants import FILEPATH_DATA
  
-with open('NUTS_infos.csv', newline='') as f:
+with open(f'{FILEPATH_DATA}/NUTS_infos.csv', newline='') as f:
     reader = csv.reader(f)
     infos = [np.array(row, dtype = 'float') for row in reader]
 
 ## open the file in the write mode
-#with open('run_samples.csv', 'w', encoding='UTF8', newline='') as f:
+#with open(f'{FILEPATH_DATA}/run_samples.csv', 'w', encoding='UTF8', newline='') as f:
     ## create the csv writer
     #writer = csv.writer(f)
     ## write a row to the csv file

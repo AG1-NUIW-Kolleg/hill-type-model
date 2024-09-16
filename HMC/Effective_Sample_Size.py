@@ -3,7 +3,7 @@ import pandas as pd
 import arviz as az
 import csv
 
-with open('run_samples.csv', newline='') as f:
+with open(f'{FILEPATH_DATA}/run_samples.csv', newline='') as f:
     reader = csv.reader(f)
     samples = np.array([np.array(row, dtype = 'float') for row in reader])
 

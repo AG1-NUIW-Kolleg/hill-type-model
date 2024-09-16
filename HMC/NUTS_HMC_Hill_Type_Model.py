@@ -18,7 +18,8 @@ import statistics
 from scipy.signal import find_peaks
 import AD_Hill_System_HMC_Py as Hill_Solution
 
-from HMC.hmc_constants import BURN_IN
+from hmc_constants import BURN_IN
+from hmc_constants import FILEPATH_DATA
 
 start = timeit.default_timer()
 
@@ -552,7 +553,7 @@ def visualization(samples,expected_input_value,std_deviation_input_vaule,expecte
     # Write simulation results in csv-files 
     
     # Open the file in the write mode for calculated samples
-    with open('run_samples.csv', 'w', encoding='UTF8', newline='') as f:
+    with open(f'{FILEPATH_DATA}/run_samples.csv', 'w', encoding='UTF8', newline='') as f:
         # create the csv writer
         writer = csv.writer(f)
         # write a row to the csv file
@@ -576,14 +577,14 @@ def visualization(samples,expected_input_value,std_deviation_input_vaule,expecte
     run_data = np.concatenate((data_input3,data_input1,data_input2,data_input5,data_input4))
         
     # Open the file in the write mode for additional data and information about HMC runs
-    with open('run_data.csv', 'w', encoding='UTF8', newline='') as f:
+    with open(f'{FILEPATH_DATA}/run_data.csv', 'w', encoding='UTF8', newline='') as f:
         # create the csv writer
         writer = csv.writer(f)
         # write a row to the csv file
         writer.writerows(run_data)
         
     # Open the file in the write mode for calculated samples
-    with open('NUTS_infos.csv', 'w', encoding='UTF8', newline='') as f:
+    with open(f'{FILEPATH_DATA}/NUTS_infos.csv', 'w', encoding='UTF8', newline='') as f:
         # create the csv writer
         writer = csv.writer(f)
         # write a row to the csv file
