@@ -1,9 +1,9 @@
-Python 3.9.2
+# Python 3.9.2
 
-Python packages:
+# Python packages:
 arviz~=0.15.1
 diffrax~=0.3.1
-functools~=
+# functools~=
 jax~=0.4.13
 matplotlib~=3.3.4
 numpy~=1.25.1
