@@ -54,8 +54,8 @@ Tend_input = 6.0
 # MCMC parameters
     
 NUM_BINS = 2 #Numbers of blocks in Histogramm
-NUM_DRAWS = 1000 #Number of HMC draws
-burn_in = 500 #Number of iterations for the burn-in of the HMC
+NUM_DRAWS = 5 #Number of HMC draws
+burn_in = 1 #Number of iterations for the burn-in of the HMC
 
 min_sample_boundary = [lslack_muscle_1_input[0],lslack_muscle_2_input[0]]
 max_sample_boundary = [lslack_muscle_1_input[1],lslack_muscle_2_input[1]]
@@ -107,9 +107,9 @@ rc('font', **{'size':12})#, 'family':'serif', 'serif':['Computer Modern Roman']}
 rc('text', usetex=True)
 
 # Plot the Simulation Results
-PATH1 = 'compare_results.pdf'
-PATH2 = 'hmc_walk_par1.pdf'
-PATH3 = 'hmc_walk_par2.pdf'
+PATH1 = 'plots/compare_results.pdf'
+PATH2 = 'plots/hmc_walk_par1.pdf'
+PATH3 = 'plots/hmc_walk_par2.pdf'
 
 # Define probability functions for automatic differentiation
 

@@ -24,7 +24,7 @@ with open('run_samples.csv', newline='') as f:
     #writer.writerows(samples)
     
 NUM_BINS = 40 #Numbers of blocks in Histogramm
-burn_in = 500 #Number of iterations for the burn-in of the HMC
+burn_in = 1 #Number of iterations for the burn-in of the HMC
 
 exact_input_value = [12.5,14.5]
 
@@ -50,14 +50,14 @@ print('Scipy Kendalltau',st.kendalltau(samples[0][burn_in:],samples[1][burn_in:]
 #rc('text', usetex=True)
 
 # Plot the Simulation Results
-PATH1 = 'Histogramm_M1_Result.pdf'
-PATH2 = 'Histogramm_M2_Result.pdf'
-PATH3 = 'Joint_Plot_M1_M2_Result.pdf'
-PATH4 = 'Scatter_Plot_M1_M2_Sample_Generation_Result.pdf'
-PATH6 = 'Scatter_Plot_M1_M2_More_Infos_Result.pdf'
-PATH5 = 'Histogramm_3D_Plot_M1_M2_Result.pdf'
-PATH7 = 'HMC_walk_M1.pdf'
-PATH8 = 'HMC_walk_M2.pdf'
+PATH1 = 'plots/Histogramm_M1_Result.pdf'
+PATH2 = 'plots/Histogramm_M2_Result.pdf'
+PATH3 = 'plots/Joint_Plot_M1_M2_Result.pdf'
+PATH4 = 'plots/Scatter_Plot_M1_M2_Sample_Generation_Result.pdf'
+PATH6 = 'plots/Scatter_Plot_M1_M2_More_Infos_Result.pdf'
+PATH5 = 'plots/Histogramm_3D_Plot_M1_M2_Result.pdf'
+PATH7 = 'plots/HMC_walk_M1.pdf'
+PATH8 = 'plots/HMC_walk_M2.pdf'
 
 # Funktionsplot
 x = samples[0][burn_in:]
