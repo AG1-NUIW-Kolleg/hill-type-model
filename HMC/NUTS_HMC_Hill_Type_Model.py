@@ -20,6 +20,7 @@ import AD_Hill_System_HMC_Py as Hill_Solution
 
 from hmc_constants import BURN_IN
 from hmc_constants import FILEPATH_DATA
+from hmc_constants import FILEPATH_PLOTS
 
 start = timeit.default_timer()
 
@@ -110,9 +111,9 @@ rc('font', **{'size':12})#, 'family':'serif', 'serif':['Computer Modern Roman']}
 rc('text', usetex=True)
 
 # Plot the Simulation Results
-PATH1 = 'plots/compare_results.pdf'
-PATH2 = 'plots/hmc_walk_par1.pdf'
-PATH3 = 'plots/hmc_walk_par2.pdf'
+PATH1 = f'{FILEPATH_PLOTS}/compare_results.pdf'
+PATH2 = f'{FILEPATH_PLOTS}/hmc_walk_par1.pdf'
+PATH3 = f'{FILEPATH_PLOTS}/hmc_walk_par2.pdf'
 
 # Define probability functions for automatic differentiation
 
