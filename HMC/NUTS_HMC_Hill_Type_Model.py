@@ -27,9 +27,11 @@ jx.config.update('jax_platform_name', 'cpu')
 
 # Define observed data, in this case expected change of muscle length
 
+#TODO "Wo kommen die Werte her?"
 lobs_m1 = 15.0 # Observed prestretched length of muscle 1 [cm]
 lobs_m2 = 15.0 # Observed prestretched length of muscle 2 [cm]
 lobs_td = 5.0 # Observed prestretched length of tendon [cm]
+#TODO "Wo kommen die Werte her?"
 extmaxobs_muscle_1 = 18.3 # Maximal extension of muscle 1
 extminobs_muscle_1 = 8.7 # Minimal extension of muscle 1
 extmaxobs_muscle_2 = 21.00 # Maximal extension of muscle 2
@@ -43,6 +45,7 @@ ode_solver = 1 # 1 = Thelen, 2 = Van Soest, 3 = Silva, 4 = Hyperelastic
 
 # Define range of possible model input parameters 
 
+#TODO sample boundaries?
 lslack_muscle_1_input = [9.0,17.0] # Stress-free length of muscle 1
 lslack_muscle_2_input = [9.0,17.0] # Stress-free length of muscle 2
 #lslack_tendon_input = [4.95,7.0] # Stress-free length of tendon
@@ -64,6 +67,7 @@ max_sample_boundary = [lslack_muscle_1_input[1],lslack_muscle_2_input[1]]
 maximum_start_counter = 5
 
 # Define a priori parameters of distributions 
+#TODO wieso diese Parameter?
 STD_DEVIATION_PROP_DIST = [0.1,0.1] #Standard deviation of proposal distribution
 STD_DEVIATION_PRIOR_DIST = [6.0,6.0] #Standard deviation of prior distribution
 EXP_VALUE_PRIOR_DIST = [13.5,13.5] #Expected value of prior distribution
@@ -153,6 +157,8 @@ def normal_prior_dist_prestret_start_length_m2_normal_jax(theta,exp_val_1d,std_d
 
 # Draw from prior distribution
 def prior_dist_jax(theta,exp_val_prior,std_prior):
+    #TODO Wieso wurde Normalverteilung verwendet
+    #TODO Wieso m1_norm_prior_prestretch * m2_norm_prior_prestretch --> (Indepence-Annahme?)
     prior_prob = (normal_prior_dist_prestret_start_length_m1_normal_jax(theta[0],exp_val_prior[0],std_prior[0])) * (normal_prior_dist_prestret_start_length_m2_normal_jax(theta[1],exp_val_prior[1],std_prior[1]))
     #prior_prob = (normal_prior_dist_start_length_m1_beta_jax(theta[0])) * (normal_prior_dist_start_length_m2_beta_jax(theta[1]))
     #prior_prob = (normal_prior_dist_m1_invgamma(theta[0])) * (normal_prior_dist_m2_invgamma(theta[1])) * (normal_prior_dist_td_invgamma(theta[2]))
@@ -164,6 +170,7 @@ def likelihood_dist_exp_jax(obs,calc,theta,std_data):
     return likelihood_prob 
 
 # Calculate likelihood     
+#TODO Wieso exponiert?
 def likelihood_dist_jax(obs,calc,theta,std_data):
     likelihood_prob = jnp.exp(-0.5*jnp.sum(jnp.power(((jnp.asarray(calc)-jnp.asarray(obs))/jnp.asarray(std_data)), 2))) 
     return likelihood_prob 
@@ -181,6 +188,7 @@ def HMC_U(obs,calc,theta,std_data,exp_val_prior,std_prior):
     return Ham_U
 
 # Calculate kinetic energy K of the Hamiltonian
+# Hi Mom!
 def HMC_K(mom,diagkovm):
     Ham_K = np.sum(np.power(mom,2)/(2*np.array(diagkovm)))
     return Ham_K
@@ -188,9 +196,11 @@ def HMC_K(mom,diagkovm):
 # Calculate non normalized posterior distribution for given input values
 def posterior_hill_type_function_jax(input_value,params):
     # Compute Hill-type model simulation output from input values
+    #TODO m1_raw und m2_raw die Muskellängen über die Zeit
     calculated_data_m1_raw_jax, calculated_data_m2_raw_jax = Hill_Solution.Hill_System_ODE_Solve(input_value,params)        
 
     # Calculate output of the forward problem
+    # TODO hier werden einzelne Werte returnt
     value_maximal_length_m1_jax = jnp.amax(calculated_data_m1_raw_jax)
     value_minimal_length_m1_jax = jnp.amin(calculated_data_m1_raw_jax)
     value_maximal_length_m2_jax = jnp.amax(calculated_data_m2_raw_jax)
@@ -389,6 +399,7 @@ def NUTS_HMC(start_sample,observed_data,grad_posterior_distribution,number_itera
         
         # NUTS (No-U-Turn Hamiltonian Monte Carlo)
         
+
         #momentum_0 = np.random.normal(EXP_VALUE_MOMENTUM,STD_DEVIATION_MOMENTUM,lss)
         momentum_0 = np.random.normal(0,1,lss)
         #epsilon = np.random.uniform(epsilon_range[0],epsilon_range[1])
@@ -604,16 +615,21 @@ def main():
     
     grad_posterior_distribution = jit(grad(posterior_hill_type_function_jax))
     
+    # TODO Was ist der Zweck von calc_data hier?
+    # damit calculated data für non_normalized_prior_dist_old!=0
     if non_normalized_prior_dist_old == 0.0 or math.isnan(non_normalized_prior_dist_old):
         calculated_data = [0.0,0.0,0.0,0.0]
         likelihood_dist_exponent_old = 0.0
     else:
         # Compute simulation output from theta start
         calculated_data = observe_blackbox_simulation(possible_start_sample,model_parameters)           
+        #TODO Das wird nicht verwendet
         likelihood_dist_exponent_old = likelihood_dist_exp_jax(observed_data,calculated_data,possible_start_sample,jnp.asarray(model_parameters['Std_Data']))
     
     start_counter = 1.0
 
+
+    # TODO was bedeutet es, wenn der prior 0 ist?
     while non_normalized_prior_dist_old == 0.0 or math.isnan(non_normalized_prior_dist_old):
         if start_counter > maximum_start_counter:
             sys.exit("no start sample found") 
