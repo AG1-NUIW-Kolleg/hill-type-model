@@ -311,7 +311,7 @@ burn_in = 50 #Number of iterations for the burn-in of the HMC
 exact_input_value = [12.5,14.5]
 
 # Import samples from MCMC 
-with open('run_samples.csv', newline='') as f:
+with open(f'{FILEPATH_DATA}/run_samples.csv', newline='') as f:
     reader = csv.reader(f)
     samples_all = np.array([np.array(row, dtype = 'float') for row in reader])
 

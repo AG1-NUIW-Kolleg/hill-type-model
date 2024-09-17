@@ -1,0 +1,3 @@
+BURN_IN = 1
+FILEPATH_DATA = 'HMC/results'
+FILEPATH_PLOTS = 'HMC/plots'

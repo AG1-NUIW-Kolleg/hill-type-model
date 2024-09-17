@@ -17,6 +17,11 @@ import statistics
 #from scipy.stats import lognorm, gamma, t, beta, invgamma
 from scipy.signal import find_peaks
 import AD_Hill_System_HMC_Py as Hill_Solution
+from tqdm.auto import tqdm
+
+from hmc_constants import BURN_IN
+from hmc_constants import FILEPATH_DATA
+from hmc_constants import FILEPATH_PLOTS
 
 start = timeit.default_timer()
 
@@ -57,8 +62,8 @@ Tend_input = 6.0
 # MCMC parameters
     
 NUM_BINS = 2 #Numbers of blocks in Histogramm
-NUM_DRAWS = 1000 #Number of HMC draws
-burn_in = 500 #Number of iterations for the burn-in of the HMC
+NUM_DRAWS = 5 #Number of HMC draws
+BURN_IN = 1 #Number of iterations for the burn-in of the HMC
 
 min_sample_boundary = [lslack_muscle_1_input[0],lslack_muscle_2_input[0]]
 max_sample_boundary = [lslack_muscle_1_input[1],lslack_muscle_2_input[1]]
@@ -111,9 +116,9 @@ rc('font', **{'size':12})#, 'family':'serif', 'serif':['Computer Modern Roman']}
 rc('text', usetex=True)
 
 # Plot the Simulation Results
-PATH1 = 'compare_results.pdf'
-PATH2 = 'hmc_walk_par1.pdf'
-PATH3 = 'hmc_walk_par2.pdf'
+PATH1 = f'{FILEPATH_PLOTS}/compare_results.pdf'
+PATH2 = f'{FILEPATH_PLOTS}/hmc_walk_par1.pdf'
+PATH3 = f'{FILEPATH_PLOTS}/hmc_walk_par2.pdf'
 
 # Define probability functions for automatic differentiation
 
@@ -162,6 +167,7 @@ def prior_dist_jax(theta,exp_val_prior,std_prior):
     prior_prob = (normal_prior_dist_prestret_start_length_m1_normal_jax(theta[0],exp_val_prior[0],std_prior[0])) * (normal_prior_dist_prestret_start_length_m2_normal_jax(theta[1],exp_val_prior[1],std_prior[1]))
     #prior_prob = (normal_prior_dist_start_length_m1_beta_jax(theta[0])) * (normal_prior_dist_start_length_m2_beta_jax(theta[1]))
     #prior_prob = (normal_prior_dist_m1_invgamma(theta[0])) * (normal_prior_dist_m2_invgamma(theta[1])) * (normal_prior_dist_td_invgamma(theta[2]))
+    # TODO uniform dist?
     return prior_prob 
 
 # Calculate likelihood exponent  
@@ -355,7 +361,7 @@ def BuildTree(Theta,mom,logu,v,j,epsilon,Theta_0,r_0,grad_U,model_parameters):
     return Theta_minus,mom_minus,grad_minus,Theta_plus,mom_plus,grad_plus,Theta_prop,grad_prop,logprob_prop,n_prop,s_prop,alpha_prop,n_alpha_prop 
 
 # Compute one samples of the HMC method with the No-U-Turn sampler method
-def NUTS_HMC(start_sample,observed_data,grad_posterior_distribution,number_iterations,max_NUTS_iterations,model_parameters,timestep_adaptive=True,reasonable_epsilon=True,epsilon_range=[0.1*1.0e-1,0.3*1.0e-1],epsilon_change=[-0.1*1.0e-1,0.1*1.0e-1]):
+def NUTS_HMC(start_sample,observed_data,grad_posterior_distribution,number_iterations,max_NUTS_iterations,model_parameters,timestep_adaptive=True,reasonable_epsilon=True,epsilon_range=[0.1*1.0e-1,0.3*1.0e-1],epsilon_change=[-0.1*1.0e-1,0.1*1.0e-1], verbose=False):
     lss = len(start_sample)
     obsle = len(observed_data)
         
@@ -372,6 +378,7 @@ def NUTS_HMC(start_sample,observed_data,grad_posterior_distribution,number_itera
     
     # Choose a reasonable epsilon (Leapfrog-Step length)
     if reasonable_epsilon==True:
+        #TODO test reasonable epsilon
         epsilon_0 = FindReasonableEpsilon(start_sample,grad_posterior_distribution,model_parameters)
     else:
         epsilon_0 = np.random.uniform(epsilon_range[0],epsilon_range[1])
@@ -394,8 +401,15 @@ def NUTS_HMC(start_sample,observed_data,grad_posterior_distribution,number_itera
     #v_j_set = (-1,1)
     
     #Start MCMC iteration (HMC)
-    for i in range(0, (number_iterations-1)):            
-        print("Run: ", 1 , "Iteration", i+1)
+
+    # for i in range(0, (number_iterations-1)):            
+    for i in tqdm(
+        range(0,(number_iterations-1)),
+        desc='HMC sampling', ncols=80,
+    ):
+        
+        if (verbose is True):
+            print("Run: ", 1 , "Iteration", i+1)
         
         # NUTS (No-U-Turn Hamiltonian Monte Carlo)
         
@@ -415,7 +429,7 @@ def NUTS_HMC(start_sample,observed_data,grad_posterior_distribution,number_itera
         Theta_plus = theta_proposal
         mom_minus = momentum_0
         mom_plus = momentum_0
-        logu = float(Hamiltonian_NUTS - np.random.exponential(1,size=1))
+        logu = float(Hamiltonian_NUTS - np.random.exponential(1,size=1)[0])
         #u = np.random.uniform(0,np.exp(Hamiltonian_NUTS))
         j_NUTS = 0
         n_NUTS = 1
@@ -424,10 +438,14 @@ def NUTS_HMC(start_sample,observed_data,grad_posterior_distribution,number_itera
         accepted_NUTS = 0
         
         while (s_NUTS == 1.0) and (counter_NUTS < max_NUTS_iterations):
-            print('Start while NUTS with counter:',counter_NUTS)
+
+            if (verbose is True):
+                print('Start while NUTS with counter:',counter_NUTS)
             #v_j = np.random.choice(v_j_set)
             v_j = int(2 * (np.random.uniform() < 0.5) - 1)
-            print('NUTS v_j:',v_j)
+
+            if (verbose is True):
+                print('NUTS v_j:',v_j)
             if (v_j == -1):
                 Theta_minus,mom_minus,grad_minus,_,_,_,theta_proposal,grad_prop,logprob_prop, n_prop,s_prop,alpha_NUTS,n_alpha_NUTS = BuildTree(Theta_minus,mom_minus,logu,v_j,j_NUTS,epsilon_0,theta_proposal_old,momentum_0,grad_posterior_distribution,model_parameters)
                 
@@ -460,7 +478,9 @@ def NUTS_HMC(start_sample,observed_data,grad_posterior_distribution,number_itera
             #s_NUTS = s_prop*(1 if (np.dot((Theta_plus-Theta_minus),mom_minus) >= 0.0) else 0)*(1 if (np.dot((Theta_plus-Theta_minus),mom_plus) >= 0.0) else 0) 
             #j_NUTS = j_NUTS + 1
             counter_NUTS = counter_NUTS + 1
-            print('End counter_NUTS',counter_NUTS)
+
+            if (verbose is True):
+                print('End counter_NUTS',counter_NUTS)
             #print('s_NUTS',s_NUTS)
             #print('counter_NUTS',counter_NUTS)
         
@@ -486,7 +506,9 @@ def NUTS_HMC(start_sample,observed_data,grad_posterior_distribution,number_itera
         else:
             #epsilon_0 = epsilon_0 + np.random.uniform(epsilon_change[0],epsilon_change[1])
             epsilon_0 = np.random.uniform(epsilon_range[0],epsilon_range[1])
-        print('epsilon_0 Update',epsilon_0)
+
+            if (verbose is True):
+                print('epsilon_0 Update',epsilon_0)
     #print('Samples',samples)
     return samples,accepted_runs,epsilon_0_iterations,counter_NUTS_iterations
 # Visualization of the calculated results
@@ -529,8 +551,8 @@ def visualization(samples,expected_input_value,std_deviation_input_vaule,expecte
     # Plot of sample values in a row (plot the walk)
     iteration_number = np.linspace(0,NUM_DRAWS, num=NUM_DRAWS, endpoint=False)
     
-    plt.plot(iteration_number[:(burn_in+1)],samples[0][:(burn_in+1)], color='r', linestyle='-', linewidth=2)
-    plt.plot(iteration_number[burn_in:],samples[0][burn_in:], color='b', linestyle='-', linewidth=2)
+    plt.plot(iteration_number[:(BURN_IN+1)],samples[0][:(BURN_IN+1)], color='r', linestyle='-', linewidth=2)
+    plt.plot(iteration_number[BURN_IN:],samples[0][BURN_IN:], color='b', linestyle='-', linewidth=2)
 
     plt.xlabel(r'Iteration')
     plt.ylabel(r'Sample')
@@ -546,8 +568,8 @@ def visualization(samples,expected_input_value,std_deviation_input_vaule,expecte
     # Plot of sample values in a row (plot the walk)
     iteration_number = np.linspace(0,NUM_DRAWS, num=NUM_DRAWS, endpoint=False)
     
-    plt.plot(iteration_number[:(burn_in+1)],samples[1][:(burn_in+1)], color='r', linestyle='-', linewidth=2)
-    plt.plot(iteration_number[burn_in:],samples[1][burn_in:], color='b', linestyle='-', linewidth=2)
+    plt.plot(iteration_number[:(BURN_IN+1)],samples[1][:(BURN_IN+1)], color='r', linestyle='-', linewidth=2)
+    plt.plot(iteration_number[BURN_IN:],samples[1][BURN_IN:], color='b', linestyle='-', linewidth=2)
 
     plt.xlabel(r'Iteration')
     plt.ylabel(r'Sample')
@@ -559,7 +581,7 @@ def visualization(samples,expected_input_value,std_deviation_input_vaule,expecte
     # Write simulation results in csv-files 
     
     # Open the file in the write mode for calculated samples
-    with open('run_samples.csv', 'w', encoding='UTF8', newline='') as f:
+    with open(f'{FILEPATH_DATA}/run_samples.csv', 'w', encoding='UTF8', newline='') as f:
         # create the csv writer
         writer = csv.writer(f)
         # write a row to the csv file
@@ -583,14 +605,14 @@ def visualization(samples,expected_input_value,std_deviation_input_vaule,expecte
     run_data = np.concatenate((data_input3,data_input1,data_input2,data_input5,data_input4))
         
     # Open the file in the write mode for additional data and information about HMC runs
-    with open('run_data.csv', 'w', encoding='UTF8', newline='') as f:
+    with open(f'{FILEPATH_DATA}/run_data.csv', 'w', encoding='UTF8', newline='') as f:
         # create the csv writer
         writer = csv.writer(f)
         # write a row to the csv file
         writer.writerows(run_data)
         
     # Open the file in the write mode for calculated samples
-    with open('NUTS_infos.csv', 'w', encoding='UTF8', newline='') as f:
+    with open(f'{FILEPATH_DATA}/NUTS_infos.csv', 'w', encoding='UTF8', newline='') as f:
         # create the csv writer
         writer = csv.writer(f)
         # write a row to the csv file
@@ -663,9 +685,9 @@ def main():
     
     # Calculate expected input value and standard deviation without burn-in iterations from HMC samples 
     for i in range(len(start_sample)):        
-        expected_input_value[i] = statistics.mean(samples[lss*0+i][burn_in:]) #Expected value for input to get the observed data
-        std_deviation_input_vaule[i] = statistics.stdev(samples[lss*0+i][burn_in:]) #Standard deviation of the expected value for input to get the observed data
-        #var_input_vaule = statistics.variance(samples[burn_in:]) #Variance of the expected value for input to get the observed data
+        expected_input_value[i] = statistics.mean(samples[lss*0+i][BURN_IN:]) #Expected value for input to get the observed data
+        std_deviation_input_vaule[i] = statistics.stdev(samples[lss*0+i][BURN_IN:]) #Standard deviation of the expected value for input to get the observed data
+        #var_input_vaule = statistics.variance(samples[BURN_IN:]) #Variance of the expected value for input to get the observed data
 
     # Compute simulation output from expected value    
     calculated_expected_observed_data = observe_blackbox_simulation(expected_input_value[0:lss],model_parameters)

@@ -11,20 +11,22 @@ import math
 import scipy.stats as st
 import statistics
 
+from hmc_constants import FILEPATH_DATA
+from hmc_constants import FILEPATH_PLOTS
  
-with open('run_samples.csv', newline='') as f:
+with open(f'{FILEPATH_DATA}/run_samples.csv', newline='') as f:
     reader = csv.reader(f)
     samples = [np.array(row, dtype = 'float') for row in reader]
 
 ## open the file in the write mode
-#with open('run_samples.csv', 'w', encoding='UTF8', newline='') as f:
+#with open(f'{FILEPATH_DATA}/run_samples.csv', 'w', encoding='UTF8', newline='') as f:
     ## create the csv writer
     #writer = csv.writer(f)
     ## write a row to the csv file
     #writer.writerows(samples)
     
 NUM_BINS = 40 #Numbers of blocks in Histogramm
-burn_in = 500 #Number of iterations for the burn-in of the HMC
+BURN_IN = 1 #Number of iterations for the burn-in of the HMC
 
 exact_input_value = [12.5,14.5]
 
@@ -33,15 +35,15 @@ std_deviation_input_vaule = np.empty(len(samples),dtype=float)
 
 # Informations about parameters
 for i in range(len(samples)):    
-    expected_input_value[i] = statistics.mean(samples[i][burn_in:]) #Expected value for input to get the observed data
-    std_deviation_input_vaule[i] = statistics.stdev(samples[i][burn_in:]) #Standard deviation of the expected value for input to get the observed data
+    expected_input_value[i] = statistics.mean(samples[i][BURN_IN:]) #Expected value for input to get the observed data
+    std_deviation_input_vaule[i] = statistics.stdev(samples[i][BURN_IN:]) #Standard deviation of the expected value for input to get the observed data
 
 print('Expected Input values',expected_input_value)
 print('Standard deviation Input values',std_deviation_input_vaule)
-print('Numpy correlation',np.corrcoef(samples[0][burn_in:],samples[1][burn_in:]))
-print('Scipy Pearson',st.pearsonr(samples[0][burn_in:],samples[1][burn_in:])[0])
-print('Scipy Spearmanr',st.spearmanr(samples[0][burn_in:],samples[1][burn_in:])[0])
-print('Scipy Kendalltau',st.kendalltau(samples[0][burn_in:],samples[1][burn_in:])[0])
+print('Numpy correlation',np.corrcoef(samples[0][BURN_IN:],samples[1][BURN_IN:]))
+print('Scipy Pearson',st.pearsonr(samples[0][BURN_IN:],samples[1][BURN_IN:])[0])
+print('Scipy Spearmanr',st.spearmanr(samples[0][BURN_IN:],samples[1][BURN_IN:])[0])
+print('Scipy Kendalltau',st.kendalltau(samples[0][BURN_IN:],samples[1][BURN_IN:])[0])
 
 #plt.hist(x, bins=bins);
 
@@ -50,17 +52,17 @@ print('Scipy Kendalltau',st.kendalltau(samples[0][burn_in:],samples[1][burn_in:]
 #rc('text', usetex=True)
 
 # Plot the Simulation Results
-PATH1 = 'Histogramm_M1_Result.pdf'
-PATH2 = 'Histogramm_M2_Result.pdf'
-PATH3 = 'Joint_Plot_M1_M2_Result.pdf'
-PATH4 = 'Scatter_Plot_M1_M2_Sample_Generation_Result.pdf'
-PATH6 = 'Scatter_Plot_M1_M2_More_Infos_Result.pdf'
-PATH5 = 'Histogramm_3D_Plot_M1_M2_Result.pdf'
-PATH7 = 'HMC_walk_M1.pdf'
-PATH8 = 'HMC_walk_M2.pdf'
+PATH1 = f'{FILEPATH_PLOTS}/Histogramm_M1_Result.pdf'
+PATH2 = f'{FILEPATH_PLOTS}/Histogramm_M2_Result.pdf'
+PATH3 = f'{FILEPATH_PLOTS}/Joint_Plot_M1_M2_Result.pdf'
+PATH4 = f'{FILEPATH_PLOTS}/Scatter_Plot_M1_M2_Sample_Generation_Result.pdf'
+PATH6 = f'{FILEPATH_PLOTS}/Scatter_Plot_M1_M2_More_Infos_Result.pdf'
+PATH5 = f'{FILEPATH_PLOTS}/Histogramm_3D_Plot_M1_M2_Result.pdf'
+PATH7 = f'{FILEPATH_PLOTS}/HMC_walk_M1.pdf'
+PATH8 = f'{FILEPATH_PLOTS}/HMC_walk_M2.pdf'
 
 # Funktionsplot
-x = samples[0][burn_in:]
+x = samples[0][BURN_IN:]
 
 q25, q75 = np.percentile(x, [25, 75])
 bin_width = 2 * (q75 - q25) * len(x) ** (-1/3)
@@ -90,7 +92,7 @@ plt.savefig(PATH1, bbox_inches='tight')
 plt.close()
 
 # Funktionsplot
-x = samples[1][burn_in:]
+x = samples[1][BURN_IN:]
 
 q25, q75 = np.percentile(x, [25, 75])
 bin_width = 2 * (q75 - q25) * len(x) ** (-1/3)
@@ -120,7 +122,7 @@ plt.savefig(PATH2, bbox_inches='tight')
 plt.close()
 
 # Joint plot of stress free length and prestretch traction
-g = sns.jointplot(x=samples[0][burn_in:],y=samples[1][burn_in:])
+g = sns.jointplot(x=samples[0][BURN_IN:],y=samples[1][BURN_IN:])
 g.plot_joint(sns.kdeplot, color="r", zorder=0, levels=6)
 g.plot_marginals(sns.rugplot, color="r",clip_on=False)
 #g.plot_marginals(sns.rugplot, color="r", height=-.15, clip_on=False)
@@ -131,7 +133,7 @@ plt.close()
 # Scatter plot sample generation
 fig, ax =plt.subplots(figsize=(6,6))
 #ax.set_title('Muscle stress-free lengths',color="black",fontsize=14)
-#plt.plot(samples[0][burn_in:], samples[1][burn_in:], 'xb-')
+#plt.plot(samples[0][BURN_IN:], samples[1][BURN_IN:], 'xb-')
 plt.plot(samples[0][:], samples[1][:],zorder=1,color="mediumpurple",linewidth="0.5") 
 plt.scatter(samples[0][:], samples[1][:],zorder=2,color="blue",marker="x",linewidths=0.5)
 plt.scatter(samples[0][0], samples[1][0],zorder=3,color="red",marker="x",linewidths=2) 
@@ -143,9 +145,9 @@ plt.close()
 # Scatter plot detailed informations
 fig, ax =plt.subplots(figsize=(6,6))
 #ax.set_title('Stress free muscle-lengths',color="black",fontsize=14)
-#plt.plot(samples[0][burn_in:], samples[1][burn_in:], 'xb-')
-#plt.plot(samples[0][burn_in:], samples[1][burn_in:],zorder=1,color="mediumpurple",linewidth="0.5") 
-ax.scatter(samples[0][burn_in:], samples[1][burn_in:],zorder=3,color="blue",marker="o",linewidths=0.5,label='HMC-Samples',alpha=0.5,s=10)
+#plt.plot(samples[0][BURN_IN:], samples[1][BURN_IN:], 'xb-')
+#plt.plot(samples[0][BURN_IN:], samples[1][BURN_IN:],zorder=1,color="mediumpurple",linewidth="0.5") 
+ax.scatter(samples[0][BURN_IN:], samples[1][BURN_IN:],zorder=3,color="blue",marker="o",linewidths=0.5,label='HMC-Samples',alpha=0.5,s=10)
 ax.scatter(expected_input_value[0], expected_input_value[1],zorder=4,color="yellow",edgecolor="red",marker="X",linewidths=0.5,label='Expected Input',alpha=0.9,s=60) 
 ax.scatter(exact_input_value[0], exact_input_value[1],zorder=5,color="lime",edgecolor="darkgreen",marker="*",linewidths=0.5,label='Exact Input',alpha=0.9,s=100)
 ax.scatter(14.0, 14.0,zorder=6,color="darkturquoise",edgecolor="indigo",marker="d",linewidths=0.5,label='Initial Sample',alpha=0.9,s=50) 
@@ -158,8 +160,8 @@ plt.savefig(PATH6, bbox_inches='tight')
 plt.close()
 
 # 3D Histogramm plot
-xAmplitudes = samples[0][burn_in:]
-yAmplitudes = samples[1][burn_in:]
+xAmplitudes = samples[0][BURN_IN:]
+yAmplitudes = samples[1][BURN_IN:]
 
 x = np.array(xAmplitudes)   #turn x,y data into numpy arrays
 y = np.array(yAmplitudes)
@@ -201,8 +203,8 @@ Results for all iterations stress free length of muscle 1
 # Plot of sample values in a row (plot the walk)
 iteration_number = np.linspace(0,NUM_DRAWS, num=NUM_DRAWS, endpoint=False)
 fig, ax =plt.subplots(figsize=(6,6))
-plt.plot(iteration_number[:(burn_in+1)],samples[0][:(burn_in+1)], color='SkyBlue', linestyle='-', linewidth=1)
-plt.plot(iteration_number[burn_in:],samples[0][burn_in:], color='magenta', linestyle='-', linewidth=1)
+plt.plot(iteration_number[:(BURN_IN+1)],samples[0][:(BURN_IN+1)], color='SkyBlue', linestyle='-', linewidth=1)
+plt.plot(iteration_number[BURN_IN:],samples[0][BURN_IN:], color='magenta', linestyle='-', linewidth=1)
 
 ax.set_xlabel(r'Iteration',color="black",fontsize=12)
 ax.set_ylabel(r'Stress-free length muscle 1 [$cm$]',color="black",fontsize=12)
@@ -218,8 +220,8 @@ Results for all iterations stress free length of muscle 2
 # Plot of sample values in a row (plot the walk)
 iteration_number = np.linspace(0,NUM_DRAWS, num=NUM_DRAWS, endpoint=False)
 fig, ax =plt.subplots(figsize=(6,6))
-plt.plot(iteration_number[:(burn_in+1)],samples[1][:(burn_in+1)], color='SkyBlue', linestyle='-', linewidth=1)
-plt.plot(iteration_number[burn_in:],samples[1][burn_in:], color='magenta', linestyle='-', linewidth=1)
+plt.plot(iteration_number[:(BURN_IN+1)],samples[1][:(BURN_IN+1)], color='SkyBlue', linestyle='-', linewidth=1)
+plt.plot(iteration_number[BURN_IN:],samples[1][BURN_IN:], color='magenta', linestyle='-', linewidth=1)
 
 ax.set_xlabel(r'Iteration',color="black",fontsize=12)
 ax.set_ylabel(r'Stress-free length muscle 2 [$cm$]',color="black",fontsize=12)

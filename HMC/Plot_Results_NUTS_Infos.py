@@ -11,13 +11,15 @@ import math
 import scipy.stats as st
 import statistics
 
+from hmc_constants import FILEPATH_DATA
+from hmc_constants import FILEPATH_PLOTS
  
-with open('NUTS_infos.csv', newline='') as f:
+with open(f'{FILEPATH_DATA}/NUTS_infos.csv', newline='') as f:
     reader = csv.reader(f)
     infos = [np.array(row, dtype = 'float') for row in reader]
 
 ## open the file in the write mode
-#with open('run_samples.csv', 'w', encoding='UTF8', newline='') as f:
+#with open(f'{FILEPATH_DATA}/run_samples.csv', 'w', encoding='UTF8', newline='') as f:
     ## create the csv writer
     #writer = csv.writer(f)
     ## write a row to the csv file
@@ -39,8 +41,8 @@ iteration_number_2 = np.linspace(0,len2, num=len2, endpoint=False)
 #rc('text', usetex=True)
 
 # Plot the Simulation Results
-PATH1 = 'NUTS_Steps.pdf'
-PATH2 = 'Epsilon_0_Adaptive.pdf'
+PATH1 = f'{FILEPATH_PLOTS}/NUTS_Steps.pdf'
+PATH2 = f'{FILEPATH_PLOTS}/Epsilon_0_Adaptive.pdf'
 
 
 # Funktionsplot
