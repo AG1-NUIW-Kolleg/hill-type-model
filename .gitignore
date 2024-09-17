@@ -2,7 +2,6 @@
 *.pdf
 
 # results folder
-HMC/results/
 results/
 
 # Byte-compiled / optimized / DLL files
