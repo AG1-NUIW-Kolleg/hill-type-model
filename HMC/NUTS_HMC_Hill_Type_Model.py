@@ -418,7 +418,7 @@ def NUTS_HMC(start_sample,observed_data,grad_posterior_distribution,number_itera
         Theta_plus = theta_proposal
         mom_minus = momentum_0
         mom_plus = momentum_0
-        logu = float(Hamiltonian_NUTS - np.random.exponential(1,size=1))
+        logu = float(Hamiltonian_NUTS - np.random.exponential(1,size=1)[0])
         #u = np.random.uniform(0,np.exp(Hamiltonian_NUTS))
         j_NUTS = 0
         n_NUTS = 1
