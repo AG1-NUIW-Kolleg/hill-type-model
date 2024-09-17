@@ -1,6 +1,9 @@
 # pdfs
 *.pdf
 
+# results folder
+HMC/results/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
