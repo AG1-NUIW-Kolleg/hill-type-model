@@ -17,6 +17,7 @@ import statistics
 #from scipy.stats import lognorm, gamma, t, beta, invgamma
 from scipy.signal import find_peaks
 import AD_Hill_System_HMC_Py as Hill_Solution
+from tqdm.auto import tqdm
 
 from hmc_constants import BURN_IN
 from hmc_constants import FILEPATH_DATA
@@ -350,7 +351,7 @@ def BuildTree(Theta,mom,logu,v,j,epsilon,Theta_0,r_0,grad_U,model_parameters):
     return Theta_minus,mom_minus,grad_minus,Theta_plus,mom_plus,grad_plus,Theta_prop,grad_prop,logprob_prop,n_prop,s_prop,alpha_prop,n_alpha_prop 
 
 # Compute one samples of the HMC method with the No-U-Turn sampler method
-def NUTS_HMC(start_sample,observed_data,grad_posterior_distribution,number_iterations,max_NUTS_iterations,model_parameters,timestep_adaptive=True,reasonable_epsilon=True,epsilon_range=[0.1*1.0e-1,0.3*1.0e-1],epsilon_change=[-0.1*1.0e-1,0.1*1.0e-1]):
+def NUTS_HMC(start_sample,observed_data,grad_posterior_distribution,number_iterations,max_NUTS_iterations,model_parameters,timestep_adaptive=True,reasonable_epsilon=True,epsilon_range=[0.1*1.0e-1,0.3*1.0e-1],epsilon_change=[-0.1*1.0e-1,0.1*1.0e-1], verbose=False):
     lss = len(start_sample)
     obsle = len(observed_data)
         
@@ -390,8 +391,15 @@ def NUTS_HMC(start_sample,observed_data,grad_posterior_distribution,number_itera
     #v_j_set = (-1,1)
     
     #Start MCMC iteration (HMC)
-    for i in range(0, (number_iterations-1)):            
-        print("Run: ", 1 , "Iteration", i+1)
+
+    # for i in range(0, (number_iterations-1)):            
+    for i in tqdm(
+        range(0,(number_iterations-1)),
+        desc='HMC sampling', ncols=80,
+    ):
+        
+        if (verbose is True):
+            print("Run: ", 1 , "Iteration", i+1)
         
         # NUTS (No-U-Turn Hamiltonian Monte Carlo)
         
@@ -419,10 +427,14 @@ def NUTS_HMC(start_sample,observed_data,grad_posterior_distribution,number_itera
         accepted_NUTS = 0
         
         while (s_NUTS == 1.0) and (counter_NUTS < max_NUTS_iterations):
-            print('Start while NUTS with counter:',counter_NUTS)
+
+            if (verbose is True):
+                print('Start while NUTS with counter:',counter_NUTS)
             #v_j = np.random.choice(v_j_set)
             v_j = int(2 * (np.random.uniform() < 0.5) - 1)
-            print('NUTS v_j:',v_j)
+
+            if (verbose is True):
+                print('NUTS v_j:',v_j)
             if (v_j == -1):
                 Theta_minus,mom_minus,grad_minus,_,_,_,theta_proposal,grad_prop,logprob_prop, n_prop,s_prop,alpha_NUTS,n_alpha_NUTS = BuildTree(Theta_minus,mom_minus,logu,v_j,j_NUTS,epsilon_0,theta_proposal_old,momentum_0,grad_posterior_distribution,model_parameters)
                 
@@ -455,7 +467,9 @@ def NUTS_HMC(start_sample,observed_data,grad_posterior_distribution,number_itera
             #s_NUTS = s_prop*(1 if (np.dot((Theta_plus-Theta_minus),mom_minus) >= 0.0) else 0)*(1 if (np.dot((Theta_plus-Theta_minus),mom_plus) >= 0.0) else 0) 
             #j_NUTS = j_NUTS + 1
             counter_NUTS = counter_NUTS + 1
-            print('End counter_NUTS',counter_NUTS)
+
+            if (verbose is True):
+                print('End counter_NUTS',counter_NUTS)
             #print('s_NUTS',s_NUTS)
             #print('counter_NUTS',counter_NUTS)
         
@@ -481,7 +495,9 @@ def NUTS_HMC(start_sample,observed_data,grad_posterior_distribution,number_itera
         else:
             #epsilon_0 = epsilon_0 + np.random.uniform(epsilon_change[0],epsilon_change[1])
             epsilon_0 = np.random.uniform(epsilon_range[0],epsilon_range[1])
-        print('epsilon_0 Update',epsilon_0)
+
+            if (verbose is True):
+                print('epsilon_0 Update',epsilon_0)
     #print('Samples',samples)
     return samples,accepted_runs,epsilon_0_iterations,counter_NUTS_iterations
 # Visualization of the calculated results
