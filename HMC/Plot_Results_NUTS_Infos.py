@@ -12,6 +12,7 @@ import scipy.stats as st
 import statistics
 
 from hmc_constants import FILEPATH_DATA
+from hmc_constants import FILEPATH_PLOTS
  
 with open(f'{FILEPATH_DATA}/NUTS_infos.csv', newline='') as f:
     reader = csv.reader(f)

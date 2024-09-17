@@ -11,6 +11,8 @@ import math
 import scipy.stats as st
 import statistics
 
+from hmc_constants import FILEPATH_DATA
+from hmc_constants import FILEPATH_PLOTS
  
 with open(f'{FILEPATH_DATA}/run_samples.csv', newline='') as f:
     reader = csv.reader(f)
@@ -50,14 +52,14 @@ print('Scipy Kendalltau',st.kendalltau(samples[0][BURN_IN:],samples[1][BURN_IN:]
 #rc('text', usetex=True)
 
 # Plot the Simulation Results
-PATH1 = 'plots/Histogramm_M1_Result.pdf'
-PATH2 = 'plots/Histogramm_M2_Result.pdf'
-PATH3 = 'plots/Joint_Plot_M1_M2_Result.pdf'
-PATH4 = 'plots/Scatter_Plot_M1_M2_Sample_Generation_Result.pdf'
-PATH6 = 'plots/Scatter_Plot_M1_M2_More_Infos_Result.pdf'
-PATH5 = 'plots/Histogramm_3D_Plot_M1_M2_Result.pdf'
-PATH7 = 'plots/HMC_walk_M1.pdf'
-PATH8 = 'plots/HMC_walk_M2.pdf'
+PATH1 = f'{FILEPATH_PLOTS}/Histogramm_M1_Result.pdf'
+PATH2 = f'{FILEPATH_PLOTS}/Histogramm_M2_Result.pdf'
+PATH3 = f'{FILEPATH_PLOTS}/Joint_Plot_M1_M2_Result.pdf'
+PATH4 = f'{FILEPATH_PLOTS}/Scatter_Plot_M1_M2_Sample_Generation_Result.pdf'
+PATH6 = f'{FILEPATH_PLOTS}/Scatter_Plot_M1_M2_More_Infos_Result.pdf'
+PATH5 = f'{FILEPATH_PLOTS}/Histogramm_3D_Plot_M1_M2_Result.pdf'
+PATH7 = f'{FILEPATH_PLOTS}/HMC_walk_M1.pdf'
+PATH8 = f'{FILEPATH_PLOTS}/HMC_walk_M2.pdf'
 
 # Funktionsplot
 x = samples[0][BURN_IN:]
