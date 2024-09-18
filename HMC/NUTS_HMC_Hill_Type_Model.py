@@ -20,6 +20,7 @@ import AD_Hill_System_HMC_Py as Hill_Solution
 from tqdm.auto import tqdm
 
 from hmc_constants import BURN_IN
+from hmc_constants import NUM_SAMPLES
 from hmc_constants import FILEPATH_DATA
 from hmc_constants import FILEPATH_PLOTS
 
@@ -62,8 +63,7 @@ Tend_input = 6.0
 # MCMC parameters
     
 NUM_BINS = 2 #Numbers of blocks in Histogramm
-NUM_DRAWS = 5 #Number of HMC draws
-BURN_IN = 1 #Number of iterations for the burn-in of the HMC
+# BURN_IN = 1 #Number of iterations for the burn-in of the HMC
 
 min_sample_boundary = [lslack_muscle_1_input[0],lslack_muscle_2_input[0]]
 max_sample_boundary = [lslack_muscle_1_input[1],lslack_muscle_2_input[1]]
@@ -549,7 +549,7 @@ def visualization(samples,expected_input_value,std_deviation_input_vaule,expecte
     """
     
     # Plot of sample values in a row (plot the walk)
-    iteration_number = np.linspace(0,NUM_DRAWS, num=NUM_DRAWS, endpoint=False)
+    iteration_number = np.linspace(0,NUM_SAMPLES, num=NUM_SAMPLES, endpoint=False)
     
     plt.plot(iteration_number[:(BURN_IN+1)],samples[0][:(BURN_IN+1)], color='r', linestyle='-', linewidth=2)
     plt.plot(iteration_number[BURN_IN:],samples[0][BURN_IN:], color='b', linestyle='-', linewidth=2)
@@ -566,7 +566,7 @@ def visualization(samples,expected_input_value,std_deviation_input_vaule,expecte
     """
     
     # Plot of sample values in a row (plot the walk)
-    iteration_number = np.linspace(0,NUM_DRAWS, num=NUM_DRAWS, endpoint=False)
+    iteration_number = np.linspace(0,NUM_SAMPLES, num=NUM_SAMPLES, endpoint=False)
     
     plt.plot(iteration_number[:(BURN_IN+1)],samples[1][:(BURN_IN+1)], color='r', linestyle='-', linewidth=2)
     plt.plot(iteration_number[BURN_IN:],samples[1][BURN_IN:], color='b', linestyle='-', linewidth=2)
@@ -589,7 +589,7 @@ def visualization(samples,expected_input_value,std_deviation_input_vaule,expecte
     
     len1 = len(STD_DEVIATION_PROP_DIST)
     len2 = len(observed_data)
-    len3 = NUM_DRAWS-1
+    len3 = NUM_SAMPLES-1
     run_observed_data = observed_data
     data_input1 = np.reshape(expected_input_value,(len1,1),order='F')
     data_input2 = np.reshape(std_deviation_input_vaule,(len1,1),order='F')
@@ -681,7 +681,8 @@ def main():
         raise ValueError('start sample should be a 1-D array')
     
     # Execute NUTS algorithm to sample HMC results
-    samples,accepted_runs,epsilon_0_iterations,counter_NUTS_iterations = NUTS_HMC(start_sample,observed_data,grad_posterior_distribution,NUM_DRAWS,12,model_parameters,timestep_adaptive=False,reasonable_epsilon=False)
+    # TODO reasonable epsilon is broken lol
+    samples,accepted_runs,epsilon_0_iterations,counter_NUTS_iterations = NUTS_HMC(start_sample,observed_data,grad_posterior_distribution,NUM_SAMPLES,12,model_parameters,timestep_adaptive=False,reasonable_epsilon=False)
     
     # Calculate expected input value and standard deviation without burn-in iterations from HMC samples 
     for i in range(len(start_sample)):        
@@ -702,7 +703,7 @@ def main():
     #expected_observed_data_clean = black_box_simulation(expected_input_value_clean)
     
     # Calculate how many of the MCMC draws got accepted
-    acceptance_ratio[0] = accepted_runs/NUM_DRAWS 
+    acceptance_ratio[0] = accepted_runs/NUM_SAMPLES 
     
     # Visualize calculated data and write output files
     visualization(samples,expected_input_value,std_deviation_input_vaule,expected_observed_data,acceptance_ratio,all_start_samples,epsilon_0_iterations,counter_NUTS_iterations)
