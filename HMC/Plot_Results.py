@@ -11,6 +11,7 @@ import math
 import scipy.stats as st
 import statistics
 
+from hmc_constants import BURN_IN
 from hmc_constants import FILEPATH_DATA
 from hmc_constants import FILEPATH_PLOTS
  
@@ -26,7 +27,6 @@ with open(f'{FILEPATH_DATA}/run_samples.csv', newline='') as f:
     #writer.writerows(samples)
     
 NUM_BINS = 40 #Numbers of blocks in Histogramm
-BURN_IN = 1 #Number of iterations for the burn-in of the HMC
 
 exact_input_value = [12.5,14.5]
 

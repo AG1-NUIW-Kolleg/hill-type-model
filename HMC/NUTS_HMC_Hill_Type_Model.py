@@ -682,7 +682,7 @@ def main():
     
     # Execute NUTS algorithm to sample HMC results
     # TODO reasonable epsilon is broken lol
-    samples,accepted_runs,epsilon_0_iterations,counter_NUTS_iterations = NUTS_HMC(start_sample,observed_data,grad_posterior_distribution,NUM_SAMPLES,12,model_parameters,timestep_adaptive=False,reasonable_epsilon=False)
+    samples,accepted_runs,epsilon_0_iterations,counter_NUTS_iterations = NUTS_HMC(start_sample,observed_data,grad_posterior_distribution,NUM_SAMPLES,12,model_parameters,timestep_adaptive=False,reasonable_epsilon=True)
     
     # Calculate expected input value and standard deviation without burn-in iterations from HMC samples 
     for i in range(len(start_sample)):        
